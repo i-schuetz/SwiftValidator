@@ -9,14 +9,9 @@
 import Foundation
 import UIKit
 
-@objc public protocol ValidationDelegate {
-    func validationSuccessful()
-    func validationFailed(errors: [UITextField: ValidationError])
-}
-
 public class Validator {
     // dictionary to handle complex view hierarchies like dynamic tableview cells
-    public var errors = [UITextField: ValidationError]()
+    public var lastErrors = [UITextField: ValidationError]?()
     public var validations = [UITextField: ValidationRule]()
     private var successStyleTransform: ((validationRule:ValidationRule) -> Void)?
     private var errorStyleTransform: ((validationError:ValidationError) -> Void)?
@@ -25,9 +20,9 @@ public class Validator {
     
     // MARK: Private functions
     
-    private func validateAllFields() {
+    private func validateAllFields() -> [UITextField: ValidationError]? {
         
-        errors = [:]
+        var errors: [UITextField: ValidationError] = [:]
         
         for (textField, rule) in validations {
             if let error = rule.validateField() {
@@ -45,6 +40,8 @@ public class Validator {
                 }
             }
         }
+        
+        return errors.isEmpty ? nil : errors
     }
     
     // MARK: Using Keys
@@ -64,24 +61,14 @@ public class Validator {
     
     public func unregisterField(textField: UITextField) {
         validations.removeValueForKey(textField)
-        errors.removeValueForKey(textField)
     }
     
-    public func validate(delegate: ValidationDelegate) {
-        
-        self.validateAllFields()
-        
-        if errors.isEmpty {
-            delegate.validationSuccessful()
-        } else {
-            delegate.validationFailed(errors)
+    
+    public func validate() -> [UITextField: ValidationError]? {
+        let errors = self.validateAllFields()
+        if errors != nil {
+            self.lastErrors = errors
         }
-    }
-    
-    public func validate(callback:(errors: [UITextField: ValidationError]) -> Void) -> Void {
-        
-        self.validateAllFields()
-        
-        callback(errors: errors)
+        return errors
     }
 }

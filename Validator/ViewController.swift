@@ -10,8 +10,8 @@ import Foundation
 import UIKit
 
 
-class ViewController: UIViewController , ValidationDelegate, UITextFieldDelegate {
-
+class ViewController: UIViewController, UITextFieldDelegate {
+    
     // TextFields
     @IBOutlet weak var fullNameTextField: UITextField!
     @IBOutlet weak var emailTextField: UITextField!
@@ -35,11 +35,11 @@ class ViewController: UIViewController , ValidationDelegate, UITextFieldDelegate
         
         validator.styleTransformers(success:{ (validationRule) -> Void in
             print("here")
-                // clear error label
-                validationRule.errorLabel?.hidden = true
-                validationRule.errorLabel?.text = ""
-                validationRule.textField.layer.borderColor = UIColor.greenColor().CGColor
-                validationRule.textField.layer.borderWidth = 0.5
+            // clear error label
+            validationRule.errorLabel?.hidden = true
+            validationRule.errorLabel?.text = ""
+            validationRule.textField.layer.borderColor = UIColor.greenColor().CGColor
+            validationRule.textField.layer.borderWidth = 0.5
             
             }, error:{ (validationError) -> Void in
                 print("error")
@@ -55,24 +55,19 @@ class ViewController: UIViewController , ValidationDelegate, UITextFieldDelegate
         validator.registerField(phoneNumberTextField, errorLabel: phoneNumberErrorLabel, rules: [RequiredRule(), MinLengthRule(length: 9)])
         validator.registerField(zipcodeTextField, errorLabel: zipcodeErrorLabel, rules: [RequiredRule(), ZipCodeRule()])
     }
-
+    
     @IBAction func submitTapped(sender: AnyObject) {
         print("Validating...")
-        validator.validate(self)
-    }
-
-    // MARK: ValidationDelegate Methods
-    
-    func validationSuccessful() {
-        print("Validation Success!")
-        let alert = UIAlertController(title: "Success", message: "You are validated!", preferredStyle: UIAlertControllerStyle.Alert)
-        let defaultAction = UIAlertAction(title: "OK", style: .Default, handler: nil)
-        alert.addAction(defaultAction)
-        self.presentViewController(alert, animated: true, completion: nil)
-    
-    }
-    func validationFailed(errors:[UITextField:ValidationError]) {
-        print("Validation FAILED!")
+        if let _ = validator.validate() {
+            print("Validation FAILED!")
+            
+        } else {
+            print("Validation Success!")
+            let alert = UIAlertController(title: "Success", message: "You are validated!", preferredStyle: UIAlertControllerStyle.Alert)
+            let defaultAction = UIAlertAction(title: "OK", style: .Default, handler: nil)
+            alert.addAction(defaultAction)
+            self.presentViewController(alert, animated: true, completion: nil)
+        }
     }
     
     func hideKeyboard() {
