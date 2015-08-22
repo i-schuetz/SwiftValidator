@@ -18,7 +18,7 @@ public class FullNameRule: Rule {
     }
         
     public func validate(value: String) -> Bool {
-        var nameArray: [String] = split(value.characters) { $0 == " " }.map { String($0) }
+        var nameArray: [String] = value.characters.split { $0 == " " }.map { String($0) }
         return nameArray.count >= 2
     }
     
