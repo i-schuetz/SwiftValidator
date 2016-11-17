@@ -10,7 +10,7 @@ import Foundation
 import UIKit
 import SwiftValidator
 
-class ViewController: UIViewController , ValidationDelegate, UITextFieldDelegate {
+class ViewController: UIViewController, UITextFieldDelegate {
 
     // TextFields
     @IBOutlet weak var fullNameTextField: UITextField!
@@ -60,25 +60,20 @@ class ViewController: UIViewController , ValidationDelegate, UITextFieldDelegate
         validator.registerField(zipcodeTextField, errorLabel: zipcodeErrorLabel, rules: [RequiredRule(), ZipCodeRule()])
     }
 
-    @IBAction func submitTapped(_ sender: AnyObject) {
+    @IBAction func submitTapped(sender: AnyObject) {
         print("Validating...")
-        validator.validate(self)
+        if let _ = validator.validate() {
+            print("Validation FAILED!")
+            
+        } else {
+            print("Validation Success!")
+            let alert = UIAlertController(title: "Success", message: "You are validated!", preferredStyle: UIAlertControllerStyle.alert)
+            let defaultAction = UIAlertAction(title: "OK", style: .default, handler: nil)
+            alert.addAction(defaultAction)
+            present(alert, animated: true, completion: nil)
+        }
     }
 
-    // MARK: ValidationDelegate Methods
-    
-    func validationSuccessful() {
-        print("Validation Success!")
-        let alert = UIAlertController(title: "Success", message: "You are validated!", preferredStyle: UIAlertControllerStyle.alert)
-        let defaultAction = UIAlertAction(title: "OK", style: .default, handler: nil)
-        alert.addAction(defaultAction)
-        self.present(alert, animated: true, completion: nil)
-    
-    }
-    func validationFailed(_ errors:[(Validatable, ValidationError)]) {
-        print("Validation FAILED!")
-    }
-    
     func hideKeyboard(){
         self.view.endEditing(true)
     }

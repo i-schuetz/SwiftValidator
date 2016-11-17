@@ -34,10 +34,10 @@ public class Validator {
     
     - returns: No return value.
     */
-    private func validateAllFields() {
+    private func validateAllFields() -> ValidatorDictionary<ValidationError>? {
         
-        errors = ValidatorDictionary<ValidationError>()
-        
+        var errors = ValidatorDictionary<ValidationError>()
+
         for (_, rule) in validations {
             if let error = rule.validateField() {
                 errors[rule.field] = error
@@ -54,6 +54,8 @@ public class Validator {
                 }
             }
         }
+        
+        return errors.isEmpty ? nil : errors
     }
     
     // MARK: Public functions
@@ -122,21 +124,12 @@ public class Validator {
         errors.removeValueForKey(field)
     }
     
-    /**
-     This method checks to see if all fields in validator are valid.
-     
-     - returns: No return value.
-     */
-    public func validate(_ delegate:ValidationDelegate) {
-        
-        self.validateAllFields()
-        
-        if errors.isEmpty {
-            delegate.validationSuccessful()
-        } else {
-            delegate.validationFailed(errors.map { (fields[$1.field]!, $1) })
+    public func validate() -> ValidatorDictionary<ValidationError>? {
+        let errors = validateAllFields()
+        if let errors = errors {
+            self.errors = errors
         }
-        
+        return errors
     }
     
     /**
@@ -147,7 +140,7 @@ public class Validator {
      */
     public func validate(_ callback:(_ errors:[(Validatable, ValidationError)])->Void) -> Void {
         
-        self.validateAllFields()
+        _ = self.validateAllFields()
         
         callback(errors.map { (fields[$1.field]!, $1) } )
     }
